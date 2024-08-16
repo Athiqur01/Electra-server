@@ -33,15 +33,41 @@ async function run() {
 
     //get operation------
     app.get("/items", async(req,res)=>{
-        const cursor=await itemsCollection.find()
-        const items=await cursor.toArray(cursor)
+        const page=parseInt(req.query.page)
+        const size=parseInt(req.query.size)
+        const items=await itemsCollection.find()
+        .skip(page * size)
+        .limit(size)
+        .toArray()
         res.send(items)
+        console.log('page, size',page,size)
+        //console.log('res',res)
     })
     
     app.get('/itemsCount', async(req, res)=>{
         const count= await itemsCollection.estimatedDocumentCount()
         res.send({count})
     })
+
+    // Search products by name
+app.get('/api/products', async (req, res) => {
+    const { q } = req.query;
+    try {
+      // Find products where the name matches the search term (case-insensitive)
+      const products = await Product.find({ name: new RegExp(q, 'i') });
+      res.json(products);
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to fetch products' });
+    }
+  });
+
+  app.get("/item", async(req,res)=>{
+    const { q } = req.query;
+    const items=await itemsCollection.find({ productName: new RegExp(q, 'i') }).toArray()
+    res.send(items)
+    console.log('search',items)
+    //console.log('res',res)
+})
 
 
     // Send a ping to confirm a successful connection
