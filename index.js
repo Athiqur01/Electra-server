@@ -31,36 +31,15 @@ async function run() {
 
     const itemsCollection = client.db("Electra").collection('Items');
 
-    //get operation------
-    app.get("/items", async(req,res)=>{
-        const page=parseInt(req.query.page)
-        const size=parseInt(req.query.size)
-        const items=await itemsCollection.find()
-        .skip(page * size)
-        .limit(size)
-        .toArray()
-        res.send(items)
-        console.log('page, size',page,size)
-        //console.log('res',res)
-    })
-    
+   
     app.get('/itemsCount', async(req, res)=>{
         const count= await itemsCollection.estimatedDocumentCount()
         res.send({count})
     })
 
-    // Search products by name
-app.get('/api/products', async (req, res) => {
-    const { q } = req.query;
-    try {
-      // Find products where the name matches the search term (case-insensitive)
-      const products = await Product.find({ name: new RegExp(q, 'i') });
-      res.json(products);
-    } catch (err) {
-      res.status(500).json({ error: 'Failed to fetch products' });
-    }
-  });
 
+
+// Search products by name
   app.get("/item", async(req,res)=>{
     const { q } = req.query;
     const items=await itemsCollection.find({ productName: new RegExp(q, 'i') }).toArray()
@@ -68,6 +47,49 @@ app.get('/api/products', async (req, res) => {
     console.log('search',items)
     //console.log('res',res)
 })
+
+// sorting according to latest date , ascending and descending start
+  app.get("/shortedItem", async(req,res)=>{
+    const { q } = req.query;
+    const page=parseInt(req.query.page)
+        const size=parseInt(req.query.size)
+    let sortCriteria;
+
+    if (q === 'latest') {
+        sortCriteria = { productCreationDateTime: -1 }; // Sort by latest products first
+      } else if (q === 'dsc') {
+        sortCriteria = { price: -1 }; // Sort by price, highest to lowest
+      } else {
+        sortCriteria = { price: 1 }; // Sort by price, lowest to highest (default)
+      }
+    const items=await itemsCollection.find()
+    .sort(sortCriteria)
+    .skip(page * size)
+    .limit(size)
+    .toArray()
+    res.send(items)
+    console.log('search',items)
+})
+// sorting according to latest date , ascending and descending start
+
+//filter for band name, catagory, min price, max price
+app.get("/filterItem", async(req,res)=>{
+    const  q  = req.query;
+    let filter={}
+    if(q.brandName){
+        filter.brandName=new RegExp(q.brandName, 'i')
+    }
+    if(q.categoryName){
+        filter.categoryName=new RegExp(q.categoryName, 'i')
+    }
+    //const items=await itemsCollection.find({ brandName: new RegExp(q.brandName, 'i') }).toArray()
+    const items=await itemsCollection.find(filter).toArray()
+    res.send(items)
+    console.log('filter',q)
+    
+    
+})
+  
 
 
     // Send a ping to confirm a successful connection
