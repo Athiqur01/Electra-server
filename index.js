@@ -43,7 +43,7 @@ async function run() {
         const newUser=req.body
         const result=await userCollection.insertOne(newUser)
         res.send(result)
-        console.log('new user',newUser)
+        
     })
 
 
