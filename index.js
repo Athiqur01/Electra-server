@@ -82,6 +82,12 @@ app.get("/filterItem", async(req,res)=>{
     if(q.categoryName){
         filter.categoryName=new RegExp(q.categoryName, 'i')
     }
+    if (q.minPrice) {
+        filter.price = { ...filter.price, $gte: Number(q.minPrice) };
+      }
+    if (q.maxPrice) {
+        filter.price = { ...filter.price, $lte: Number(q.maxPrice) };
+      }
     //const items=await itemsCollection.find({ brandName: new RegExp(q.brandName, 'i') }).toArray()
     const items=await itemsCollection.find(filter).toArray()
     res.send(items)
