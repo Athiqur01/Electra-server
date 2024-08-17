@@ -60,7 +60,7 @@ async function run() {
     const { q } = req.query;
     const items=await itemsCollection.find({ productName: new RegExp(q, 'i') }).toArray()
     res.send(items)
-    console.log('search',items)
+    
     //console.log('res',res)
 })
 
@@ -84,7 +84,7 @@ async function run() {
     .limit(size)
     .toArray()
     res.send(items)
-    console.log('search',items)
+   
 })
 // sorting according to latest date , ascending and descending start
 
