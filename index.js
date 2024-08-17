@@ -6,7 +6,13 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 
 //middleware-------
-app.use(cors())
+app.use(cors({
+    origin: [
+      "http://localhost:5173",
+      "https://electra-5fb97.web.app",
+      "https://electra-5fb97.firebaseapp.com",
+    ]
+  }));
 app.use(express.json())
 
 //vFWsaSJ3bxwjGoBn   
@@ -27,9 +33,19 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+   // await client.connect();
 
     const itemsCollection = client.db("Electra").collection('Items');
+    const usersCollection = client.db("Electra").collection('Users');
+
+    //post operation------
+    app.post("/users", async(req,res)=>{
+        const newUser=req.body
+        const result=await userCollection.insertOne(newUser)
+        res.send(result)
+        console.log('new user',newUser)
+    })
+
 
    
     app.get('/itemsCount', async(req, res)=>{
@@ -104,7 +120,7 @@ app.get("/filterItem", async(req,res)=>{
 
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    //await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
