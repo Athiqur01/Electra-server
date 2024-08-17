@@ -112,7 +112,7 @@ app.get("/filterItem", async(req,res)=>{
     .limit(size)
     .toArray()
     res.send(items)
-    console.log('filter',q)
+    
     
     
 })
