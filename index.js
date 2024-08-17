@@ -52,7 +52,7 @@ async function run() {
   app.get("/shortedItem", async(req,res)=>{
     const { q } = req.query;
     const page=parseInt(req.query.page)
-        const size=parseInt(req.query.size)
+    const size=parseInt(req.query.size)
     let sortCriteria;
 
     if (q === 'latest') {
@@ -75,6 +75,8 @@ async function run() {
 //filter for band name, catagory, min price, max price
 app.get("/filterItem", async(req,res)=>{
     const  q  = req.query;
+    const page=parseInt(req.query.page)
+    const size=parseInt(req.query.size)
     let filter={}
     if(q.brandName){
         filter.brandName=new RegExp(q.brandName, 'i')
@@ -89,7 +91,10 @@ app.get("/filterItem", async(req,res)=>{
         filter.price = { ...filter.price, $lte: Number(q.maxPrice) };
       }
     //const items=await itemsCollection.find({ brandName: new RegExp(q.brandName, 'i') }).toArray()
-    const items=await itemsCollection.find(filter).toArray()
+    const items=await itemsCollection.find(filter)
+    .skip(page * size)
+    .limit(size)
+    .toArray()
     res.send(items)
     console.log('filter',q)
     
